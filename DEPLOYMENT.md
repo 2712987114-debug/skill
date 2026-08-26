@@ -15,8 +15,9 @@
 
 ## COS CORS
 
-在 COS 控制台为桶 `liwanmin-0115-1454067572` 添加 CORS 规则：
+在 COS 控制台为桶 `cuimengyuan-1473942157` 添加 CORS 规则：
 
 - Origin：`https://2712987114-debug.github.io`
 - Methods：`GET, PUT, HEAD, POST`
 - Allowed Headers：`*`
+- Expose Headers：`ETag`
