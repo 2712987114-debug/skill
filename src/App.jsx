@@ -1,0 +1,350 @@
+import { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  ArrowUp,
+  ArrowUpRight,
+  EnvelopeSimple,
+  List,
+  Phone,
+  Play,
+  X,
+} from "@phosphor-icons/react";
+import BlurText from "./components/BlurText";
+import ParticleText from "./components/ParticleText";
+import { cosAsset, loadManifest, localAsset, useLocalAssetFallback } from "./cosAssets";
+import AdminPanel from "./AdminPanel";
+
+const strengths = [
+  ["01", "镜头语言", "善于构图与调度，用镜头传递情绪与信息，强化故事沉浸感。"],
+  ["02", "叙事节奏", "熟练短剧强节奏剪辑，让每一秒都推动剧情、抓住观众注意力。"],
+  ["03", "反转卡点", "擅长铺垫反转与高潮节点，提升剧情张力与完播体验。"],
+  ["04", "悬念钩子", "以黄金 3 秒建立冲突，在开头与关键处设置悬念。"],
+];
+
+const workflow = ["小说改写", "剧本分镜", "AI 资产图", "视频生成", "剪辑成片"];
+
+const galleryAssets = [
+  { id: "01", category: "characters", fileName: "project-jiuyou.png", label: "古风角色概念", alt: "暗色古风角色与遗迹场景的 AI 概念图" },
+  { id: "02", category: "characters", fileName: "project-mercenary.png", label: "末日场景资产", alt: "黑甲角色俯瞰废墟城池的 AI 场景图" },
+  { id: "03", category: "characters", fileName: "project-boundaries.png", label: "人物叙事画面", alt: "室内暖光人物对话的 AI 叙事画面" },
+  { id: "04", category: "scenes", fileName: "contact-lighthouse.png", label: "环境氛围概念", alt: "风暴海岸人物与灯塔的 AI 氛围图" },
+  { id: "05", category: "scenes", fileName: "hero-editor-studio.png", label: "夜景空间概念", alt: "夜间剪辑工作室的 AI 空间概念图" },
+  { id: "06", category: "characters", fileName: "portrait-editor-bw.png", label: "黑白人物研究", alt: "剪辑工作室人物的黑白 AI 视觉图" },
+];
+
+export function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeAsset, setActiveAsset] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [content, setContent] = useState({ galleryAssets, projects: [], siteMedia: {}, profile: {} });
+
+  useEffect(() => {
+    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const nodes = document.querySelectorAll("[data-reveal]");
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add("is-visible");
+      }),
+      { threshold: 0.12 },
+    );
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const close = (event) => {
+      if (event.key === "Escape") {
+        setActiveAsset(null);
+        setActiveCategory(null);
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, []);
+
+  useEffect(() => {
+    if (!activeAsset && !activeCategory) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [activeAsset]);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  return (
+    <main>
+      <header className="site-header">
+        <a className="chapter-mark" href="#home" aria-label="返回首页">
+          <span /> 01 · 首页
+        </a>
+        <nav className={menuOpen ? "nav is-open" : "nav"} aria-label="主导航">
+          <a href="#about" onClick={closeMenu}>关于</a>
+          <i>/</i>
+          <a href="#projects" onClick={closeMenu}>项目</a>
+          <i>/</i>
+          <a href="#gallery" onClick={closeMenu}>画廊</a>
+          <i>/</i>
+          <a href="#strengths" onClick={closeMenu}>能力</a>
+          <i>/</i>
+          <a href="#contact" onClick={closeMenu}>联系</a>
+        </nav>
+        <a className="header-contact" href={`mailto:${content.profile?.email || "13673958331@163.com"}?subject=作品合作咨询`}>
+          联系我 <ArrowUpRight size={16} />
+        </a>
+        <button className="menu-toggle" onClick={() => setMenuOpen((value) => !value)} aria-label="打开导航">
+          {menuOpen ? <X size={22} /> : <List size={22} />}
+        </button>
+      </header>
+
+      <section className="hero" id="home" aria-labelledby="hero-title">
+        <video
+          className="hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          src={content.siteMedia.heroVideo || cosAsset("hero-editor-studio.mp4")}
+          data-fallback-src={localAsset("hero-editor-studio.mp4")}
+          onError={useLocalAssetFallback}
+          poster={content.siteMedia.heroPoster || cosAsset("hero-editor-studio.png")}
+          aria-hidden="true"
+        >
+          <source src={cosAsset("hero-editor-studio.mp4")} type="video/mp4" />
+        </video>
+        <div className="hero-shade" />
+        <div className="hero-content page-shell">
+          <div className="hero-copy">
+            <BlurText as="p" text="EDITOR · AI DESIGNER · AI COMIC" delay={90} className="eyebrow" />
+            <ParticleText
+              id="hero-title"
+              className="hero-title-particles"
+              text={content.profile?.displayName || "李万民"}
+              particleSize={2}
+              density={4}
+              color="#ffffff"
+              highlightColor="#8b5cf6"
+              scatter={180}
+              gatherDuration={1600}
+              stagger={420}
+              pointerRepel={0}
+              repelRadius={0}
+              idleDrift={0.7}
+              trigger="hover"
+              fontSize="clamp(5.75rem, 10.8vw, 12.25rem)"
+              fontWeight={800}
+              fontFamily="inherit"
+              align="left"
+              gradient
+            />
+            <BlurText as="p" text={content.profile?.heroRole || "剪辑师 / AI设计师 / AI漫剧"} delay={75} className="hero-role" />
+            <a className="play-link" href="#projects" data-reveal>
+              <span><Play size={13} weight="fill" /></span>
+              PLAY REEL
+            </a>
+          </div>
+          <BlurText as="p" text={"用影像讲好故事\n用 AI 拓展想象的边界"} delay={75} className="hero-note" />
+        </div>
+      </section>
+
+      <section className="about" id="about">
+        <div className="about-image" data-reveal>
+          <img src={content.siteMedia.portrait || cosAsset("portrait-editor-bw.png")} data-fallback-src={localAsset("portrait-editor-bw.png")} onError={useLocalAssetFallback} alt="李万民在剪辑工作室工作的黑白人物照" />
+        </div>
+        <div className="about-copy">
+          <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
+          <BlurText as="h2" text={"用影像讲好故事，\n用 AI 拓展想象的边界。"} delay={120} />
+          <BlurText
+            text={content.profile?.aboutPrimary || "我叫李万民，是一名专注内容叙事与视觉表达的 AI 短剧剪辑师。熟悉真人短剧的粗剪、精剪与节奏把控，也能独立完成 AI 漫剧从小说改写、剧本分镜、资产图建立、视频生成到剪辑成片的完整流程。"}
+            delay={32}
+          />
+          <BlurText
+            text={content.profile?.aboutSecondary || "我相信，好故事既要被看见，也值得被更好的方式呈现。AI 是创作伙伴，让想象更高效地落地成片。"}
+            delay={38}
+          />
+          <div className="about-meta" data-reveal>
+            <div><span>经历</span><strong>{content.profile?.experienceValue || "2+"}<small>{content.profile?.experienceUnit || "年"}</small></strong></div>
+            <div><span>代表项目</span><strong>{content.profile?.projectValue || "8"}<small>{content.profile?.projectUnit || "部+"}</small></strong></div>
+            <div><span>制作能力</span><strong>全流程</strong></div>
+            <div><span>任职公司</span><b>{content.profile?.companyName || "河南荧灿文化发展"}<br />{content.profile?.companyPeriod || "2024—2026"}</b></div>
+          </div>
+          <div className="contact-inline" data-reveal>
+            <a href={`tel:${(content.profile?.phone || "166 2511 6217").replace(/\s+/g, "")}`}><Phone size={17} />{content.profile?.phone || "166 2511 6217"}</a>
+            <a href={`mailto:${content.profile?.email || "13673958331@163.com"}`}><EnvelopeSimple size={17} />{content.profile?.email || "13673958331@163.com"}</a>
+          </div>
+        </div>
+      </section>
+
+      <section className="projects projects--cleared" id="projects">
+        <div className="section-heading page-shell">
+          <div>
+            <BlurText as="p" text="PROJECTS" delay={100} className="eyebrow" />
+            <BlurText as="h2" text="精选项目" delay={150} />
+          </div>
+        </div>
+        <div className="project-categories page-shell">
+          {[
+            ["01", "短剧", "SHORT DRAMA", "shortDrama"],
+            ["02", "其他板块", "OTHER WORKS", "otherWorks"],
+          ].map(([number, title, label, category]) => {
+            const projects = content.projects.filter((project) => (project.category || "shortDrama") === category);
+            return <button className="project-category-card project-category-button" type="button" key={category} data-reveal onClick={() => setActiveCategory({ title, label, projects })}><div className="project-category-topline"><span>{number}</span><i aria-hidden="true" /></div><div className="project-category-title"><BlurText as="small" text={label} delay={80} /><BlurText as="h3" text={title} delay={120} /></div><span className="project-category-enter">查看 {projects.length ? `${projects.length} 个项目` : "项目"} →</span></button>;
+          })}
+        </div>
+      </section>
+
+      <section className="gallery" id="gallery" aria-labelledby="gallery-title">
+        <div className="section-heading gallery-heading page-shell">
+          <div>
+            <BlurText as="p" text="AI VISUAL ARCHIVE" delay={80} className="eyebrow" />
+            <BlurText as="h2" text="AI 图片资产" delay={130} id="gallery-title" />
+          </div>
+          <BlurText
+            text="角色、场景与叙事画面的视觉资产实验"
+            delay={45}
+            className="gallery-note"
+          />
+        </div>
+
+        <div className="gallery-groups page-shell">
+          {[ ["characters", "人物资产图", "CHARACTER ASSETS"], ["scenes", "场景资产图", "SCENE ASSETS"] ].map(([category, title, label]) => {
+            const assets = content.galleryAssets.filter((asset) => (asset.category || "characters") === category);
+            return <section className="gallery-group" key={category}><div className="gallery-group-title"><small>{label}</small><h3>{title}</h3><span>{assets.length.toString().padStart(2, "0")}</span></div><div className="gallery-grid">
+          {assets.map((asset, index) => (
+            <button
+              className={`gallery-item gallery-item--${index + 1}`}
+              type="button"
+              key={asset.id}
+              onClick={() => setActiveAsset(asset)}
+              aria-label={`查看${asset.label}`}
+              data-reveal
+            >
+              <img src={asset.url || cosAsset(asset.fileName)} data-fallback-src={asset.fileName ? localAsset(asset.fileName) : ""} onError={useLocalAssetFallback} alt={asset.alt} loading="lazy" />
+              <span className="gallery-item-shade" />
+              <span className="gallery-item-index">{String(index + 1).padStart(2, "0")} / {String(assets.length).padStart(2, "0")}</span>
+              <span className="gallery-item-copy">
+                <BlurText as="small" text="AI GENERATED ASSET" delay={55} />
+                <BlurText as="strong" text={asset.label} delay={85} />
+              </span>
+            </button>
+          ))}
+            </div></section>;
+          })}
+        </div>
+      </section>
+
+      <section className="workflow page-shell" aria-labelledby="workflow-title">
+        <div className="workflow-title">
+          <BlurText as="p" text="WORKFLOW" delay={100} className="eyebrow" />
+          <BlurText as="h2" text="我的创作流程" delay={115} id="workflow-title" />
+        </div>
+        <div className="workflow-steps">
+          {workflow.map((step, index) => (
+            <div key={step}>
+              <span>0{index + 1}</span>
+              <BlurText as="strong" text={step} delay={80} />
+              {index < workflow.length - 1 && <ArrowRight size={20} />}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="strengths page-shell" id="strengths">
+        <BlurText as="p" text="STRENGTHS" delay={100} className="eyebrow" />
+        <div className="strength-grid">
+          {strengths.map(([id, title, body]) => (
+            <article key={id}>
+              <span>{id}</span>
+              <BlurText as="h3" text={title} delay={100} />
+              <BlurText text={body} delay={38} />
+            </article>
+          ))}
+        </div>
+        <div className="tool-line">
+          <span>TOOLS</span>
+          <BlurText text="ChatGPT · Codex · Photoshop · Premiere Pro · 剪映 · DaVinci Resolve" delay={45} />
+        </div>
+      </section>
+
+      <section className="contact" id="contact">
+        <img src={content.siteMedia.contactBackground || cosAsset("contact-lighthouse.png")} data-fallback-src={localAsset("contact-lighthouse.png")} onError={useLocalAssetFallback} alt="风暴海岸与远处灯塔的电影画面" />
+        <div className="contact-overlay" />
+        <div className="contact-content page-shell">
+          <BlurText as="p" text="CONTACT" delay={100} className="eyebrow" />
+          <ParticleText
+            className="contact-title-particles"
+            text={"期待与你合作，\n把好故事变成好作品。"}
+            particleSize={2}
+            density={4}
+            color="#ffffff"
+            highlightColor="#8b5cf6"
+            scatter={180}
+            gatherDuration={1600}
+            stagger={420}
+            pointerRepel={0}
+            repelRadius={0}
+            idleDrift={0.7}
+            trigger="hover"
+            fontSize="clamp(3.25rem, 6.1vw, 7rem)"
+            fontWeight={800}
+            fontFamily="inherit"
+            align="left"
+            gradient
+          />
+          <div className="contact-actions">
+            <a href={`mailto:${content.profile?.email || "13673958331@163.com"}?subject=作品合作咨询`}>
+              <BlurText as="span" text="联系我，聊聊你的项目" delay={55} /> <ArrowRight size={21} />
+            </a>
+            <a href={`tel:${(content.profile?.phone || "166 2511 6217").replace(/\s+/g, "")}`}><BlurText as="span" text={content.profile?.phone || "166 2511 6217"} delay={55} /></a>
+          </div>
+        </div>
+        <footer className="footer page-shell">
+          <BlurText as="span" text={content.profile?.footerCopyright || "© 2024—2026 李万民 · 保留所有权利"} delay={35} />
+          <BlurText as="span" text="AI EDITOR · AVAILABLE FOR WORK" delay={45} />
+          <a href="#home" aria-label="返回顶部"><ArrowUp size={16} /> TOP</a>
+        </footer>
+      </section>
+
+      {activeAsset && (
+        <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+          <button
+            className="gallery-lightbox-backdrop"
+            type="button"
+            onClick={() => setActiveAsset(null)}
+            aria-label="关闭图片预览"
+          />
+          <figure className="gallery-lightbox-frame">
+            <button
+              className="gallery-lightbox-close"
+              type="button"
+              onClick={() => setActiveAsset(null)}
+              aria-label="关闭"
+            >
+              <X size={22} />
+            </button>
+            <img src={activeAsset.url || cosAsset(activeAsset.fileName)} data-fallback-src={activeAsset.fileName ? localAsset(activeAsset.fileName) : ""} onError={useLocalAssetFallback} alt={activeAsset.alt} />
+            <figcaption>
+              <span>{activeAsset.id} / 06</span>
+              <strong id="lightbox-title">{activeAsset.label}</strong>
+            </figcaption>
+          </figure>
+        </div>
+      )}
+      {activeCategory && (
+        <div className="project-view" role="dialog" aria-modal="true" aria-labelledby="project-view-title">
+          <button className="project-view-backdrop" type="button" onClick={() => setActiveCategory(null)} aria-label="关闭项目列表" />
+          <section className="project-view-panel">
+            <header><div><small>{activeCategory.label}</small><h2 id="project-view-title">{activeCategory.title}</h2></div><button type="button" onClick={() => setActiveCategory(null)} aria-label="关闭"><X size={22} /></button></header>
+            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => <article key={project.id} className="project-view-item"><img src={project.coverUrl} alt={`${project.title}封面`} /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{project.videoUrl ? <video controls preload="metadata" playsInline src={project.videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>)}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
+          </section>
+        </div>
+      )}
+      <AdminPanel content={content} onContentChange={setContent} />
+    </main>
+  );
+}
