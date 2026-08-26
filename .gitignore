@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.npm-cache/
+.pnpm-store/
+.xdg-data/
+.env
+.env.*
+!.env.example
