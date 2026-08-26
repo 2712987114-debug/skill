@@ -1,6 +1,6 @@
 import COS from "cos-js-sdk-v5";
 
-export const COS_BUCKET = "liwanmin-0115-1454067572";
+export const COS_BUCKET = "cuimengyuan-1473942157";
 export const COS_REGION = "ap-guangzhou";
 export const COS_PUBLIC_BASE_URL = `https://${COS_BUCKET}.cos.${COS_REGION}.myqcloud.com`;
 export const CONTENT_MANIFEST_KEY = "site/liwanmin-portfolio.json";
@@ -46,7 +46,6 @@ export function uploadToCos(file, key) {
       Region: COS_REGION,
       Key: key,
       Body: file,
-      ACL: "public-read",
     }, (error) => {
       if (error) reject(new Error(error.message || "COS 上传失败"));
       else resolve(cosUrl(key));
