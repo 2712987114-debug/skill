@@ -39,9 +39,19 @@ export default function AdminPanel({ content, onContentChange }) {
     setFooterCopyright(profile.footerCopyright || "© 2024—2026 李万民 · 保留所有权利");
   }, [content.profile]);
 
-  function saveConfig() {
-    saveCosConfig(config);
-    setStatus("COS 授权已仅保存到当前浏览器。现在可以上传并同步。");
+  async function saveConfig() {
+    if (!config.secretId.trim() || !config.secretKey.trim()) {
+      setStatus("请完整填写 SecretId 和 SecretKey。");
+      return;
+    }
+    try {
+      setStatus("正在验证 COS 授权并同步当前网站内容…");
+      saveCosConfig(config);
+      await syncManifest(content);
+      setStatus("COS 授权有效，当前内容清单已同步到存储桶。现在可以上传作品。");
+    } catch (error) {
+      setStatus(`COS 连接或同步失败：${error.message}`);
+    }
   }
   async function uploadGallery(event) {
     const file = event.target.files?.[0];
@@ -111,7 +121,7 @@ export default function AdminPanel({ content, onContentChange }) {
   if (!open) return <button className="admin-entry" type="button" onClick={() => setOpen(true)} aria-label="打开内容管理"><GearSix size={20} /></button>;
   return <aside className="admin-drawer" aria-label="内容管理"><header><strong>内容管理</strong><button type="button" onClick={() => setOpen(false)}><X size={20} /></button></header><div className="admin-scroll">
     <p className="admin-note">桶：cuimengyuan-1473942157（广州）。视频、图片和内容清单都会自动同步到 COS，访客刷新后即可看到。</p>
-    <section><h3>腾讯云 COS 授权</h3><input placeholder="SecretId（建议使用仅限此桶写入的子账号）" value={config.secretId} onChange={(e) => setConfig({ ...config, secretId: e.target.value })}/><input type="password" placeholder="SecretKey" value={config.secretKey} onChange={(e) => setConfig({ ...config, secretKey: e.target.value })}/><button type="button" onClick={saveConfig}>保存授权</button><p className="admin-note">密钥仅保存在当前浏览器，不会提交到 GitHub。</p></section>
+    <section><h3>腾讯云 COS 授权</h3><input placeholder="SecretId（建议使用仅限此桶写入的子账号）" value={config.secretId} onChange={(e) => setConfig({ ...config, secretId: e.target.value })}/><input type="password" placeholder="SecretKey" value={config.secretKey} onChange={(e) => setConfig({ ...config, secretKey: e.target.value })}/><button type="button" onClick={saveConfig}>保存授权并同步当前内容</button><p className="admin-note">密钥仅保存在当前浏览器，不会提交到 GitHub。</p></section>
     <section><h3>首页、关于我与联系方式</h3><label>首页姓名<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="例如：李万民" /></label><label>首页职业描述<input value={heroRole} onChange={(e) => setHeroRole(e.target.value)} placeholder="例如：剪辑师 / AI设计师 / AI漫剧" /></label><label>第一段个人介绍<textarea value={aboutPrimary} onChange={(e) => setAboutPrimary(e.target.value)} /></label><label>第二段个人介绍<textarea value={aboutSecondary} onChange={(e) => setAboutSecondary(e.target.value)} /></label><label>经历数字<input value={experienceValue} onChange={(e) => setExperienceValue(e.target.value)} placeholder="例如：2+" /></label><label>经历单位<input value={experienceUnit} onChange={(e) => setExperienceUnit(e.target.value)} placeholder="例如：年" /></label><label>代表项目数字<input value={projectValue} onChange={(e) => setProjectValue(e.target.value)} placeholder="例如：8" /></label><label>代表项目单位<input value={projectUnit} onChange={(e) => setProjectUnit(e.target.value)} placeholder="例如：部+" /></label><label>公司名称<input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="例如：河南荧灿文化发展" /></label><label>任职时间<input value={companyPeriod} onChange={(e) => setCompanyPeriod(e.target.value)} placeholder="例如：2024—2026" /></label><label>手机号<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="例如：166 2511 6217" /></label><label>邮箱<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="例如：name@example.com" /></label><label>页脚版权文字<input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="例如：© 2024—2026 李万民 · 保留所有权利" /></label><button type="button" onClick={saveProfile}>保存首页、关于我与联系方式</button></section>
     <section><h3>页面背景与素材</h3><label>首页背景视频<input type="file" accept="video/*" data-field="heroVideo" onChange={uploadSiteMedia}/></label><label>首页背景图<input type="file" accept="image/*" data-field="heroPoster" onChange={uploadSiteMedia}/></label><label>关于页图片<input type="file" accept="image/*" data-field="portrait" onChange={uploadSiteMedia}/></label><label>联系页背景<input type="file" accept="image/*" data-field="contactBackground" onChange={uploadSiteMedia}/></label></section>
     <section><h3>添加图片资产</h3><label>图片归类<select value={galleryCategory} onChange={(e) => setGalleryCategory(e.target.value)}><option value="characters">人物资产图</option><option value="scenes">场景资产图</option></select></label><input placeholder="图片名称" value={title} onChange={(e) => setTitle(e.target.value)}/><label className="upload-label"><CloudArrowUp size={18}/>选择图片<input type="file" accept="image/*" onChange={uploadGallery}/></label></section>
