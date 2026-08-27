@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react";
 import BlurText from "./components/BlurText";
 import ParticleText from "./components/ParticleText";
-import { cosAsset, loadManifest, localAsset, useLocalAssetFallback } from "./cosAssets";
+import { loadManifest, localAsset, useLocalAssetFallback } from "./cosAssets";
 import AdminPanel from "./AdminPanel";
 
 const strengths = [
@@ -24,13 +24,27 @@ const strengths = [
 const workflow = ["小说改写", "剧本分镜", "AI 资产图", "视频生成", "剪辑成片"];
 
 const galleryAssets = [
-  { id: "01", category: "characters", fileName: "project-jiuyou.png", label: "古风角色概念", alt: "暗色古风角色与遗迹场景的 AI 概念图" },
-  { id: "02", category: "characters", fileName: "project-mercenary.png", label: "末日场景资产", alt: "黑甲角色俯瞰废墟城池的 AI 场景图" },
-  { id: "03", category: "characters", fileName: "project-boundaries.png", label: "人物叙事画面", alt: "室内暖光人物对话的 AI 叙事画面" },
-  { id: "04", category: "scenes", fileName: "contact-lighthouse.png", label: "环境氛围概念", alt: "风暴海岸人物与灯塔的 AI 氛围图" },
-  { id: "05", category: "scenes", fileName: "hero-editor-studio.png", label: "夜景空间概念", alt: "夜间剪辑工作室的 AI 空间概念图" },
-  { id: "06", category: "characters", fileName: "portrait-editor-bw.png", label: "黑白人物研究", alt: "剪辑工作室人物的黑白 AI 视觉图" },
+  { id: "01", category: "characters", fileName: "project-jiuyou.webp", label: "古风角色概念", alt: "暗色古风角色与遗迹场景的 AI 概念图" },
+  { id: "02", category: "characters", fileName: "project-mercenary.webp", label: "末日场景资产", alt: "黑甲角色俯瞰废墟城池的 AI 场景图" },
+  { id: "03", category: "characters", fileName: "project-boundaries.webp", label: "人物叙事画面", alt: "室内暖光人物对话的 AI 叙事画面" },
+  { id: "04", category: "scenes", fileName: "contact-lighthouse.webp", label: "环境氛围概念", alt: "风暴海岸人物与灯塔的 AI 氛围图" },
+  { id: "05", category: "scenes", fileName: "hero-editor-studio.webp", label: "夜景空间概念", alt: "夜间剪辑工作室的 AI 空间概念图" },
+  { id: "06", category: "characters", fileName: "portrait-editor-bw.webp", label: "黑白人物研究", alt: "剪辑工作室人物的黑白 AI 视觉图" },
 ];
+
+const optimizedStaticAssets = {
+  "project-jiuyou.png": "project-jiuyou.webp",
+  "project-mercenary.png": "project-mercenary.webp",
+  "project-boundaries.png": "project-boundaries.webp",
+  "contact-lighthouse.png": "contact-lighthouse.webp",
+  "hero-editor-studio.png": "hero-editor-studio.webp",
+  "portrait-editor-bw.png": "portrait-editor-bw.webp",
+};
+
+function optimizeSavedAsset(asset) {
+  if (asset.url || !optimizedStaticAssets[asset.fileName]) return asset;
+  return { ...asset, fileName: optimizedStaticAssets[asset.fileName] };
+}
 
 export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,7 +53,7 @@ export function App() {
   const [content, setContent] = useState({ galleryAssets, projects: [], siteMedia: {}, profile: {} });
 
   useEffect(() => {
-    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
+    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -109,14 +123,13 @@ export function App() {
           muted
           loop
           playsInline
-          src={content.siteMedia.heroVideo || cosAsset("hero-editor-studio.mp4")}
+          preload="auto"
+          src={content.siteMedia.heroVideo || localAsset("hero-editor-studio.mp4")}
           data-fallback-src={localAsset("hero-editor-studio.mp4")}
           onError={useLocalAssetFallback}
-          poster={content.siteMedia.heroPoster || cosAsset("hero-editor-studio.png")}
+          poster={content.siteMedia.heroPoster || localAsset("hero-editor-studio.webp")}
           aria-hidden="true"
-        >
-          <source src={cosAsset("hero-editor-studio.mp4")} type="video/mp4" />
-        </video>
+        />
         <div className="hero-shade" />
         <div className="hero-content page-shell">
           <div className="hero-copy">
@@ -154,7 +167,7 @@ export function App() {
 
       <section className="about" id="about">
         <div className="about-image" data-reveal>
-          <img src={content.siteMedia.portrait || cosAsset("portrait-editor-bw.png")} data-fallback-src={localAsset("portrait-editor-bw.png")} onError={useLocalAssetFallback} alt="李万民在剪辑工作室工作的黑白人物照" />
+          <img src={content.siteMedia.portrait || localAsset("portrait-editor-bw.webp")} data-fallback-src={localAsset("portrait-editor-bw.webp")} onError={useLocalAssetFallback} alt="李万民在剪辑工作室工作的黑白人物照" loading="lazy" decoding="async" />
         </div>
         <div className="about-copy">
           <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
@@ -224,7 +237,7 @@ export function App() {
               aria-label={`查看${asset.label}`}
               data-reveal
             >
-              <img src={asset.url || cosAsset(asset.fileName)} data-fallback-src={asset.fileName ? localAsset(asset.fileName) : ""} onError={useLocalAssetFallback} alt={asset.alt} loading="lazy" />
+              <img src={asset.url || localAsset(asset.fileName)} data-fallback-src={asset.fileName ? localAsset(asset.fileName) : ""} onError={useLocalAssetFallback} alt={asset.alt} loading="lazy" decoding="async" />
               <span className="gallery-item-shade" />
               <span className="gallery-item-index">{String(index + 1).padStart(2, "0")} / {String(assets.length).padStart(2, "0")}</span>
               <span className="gallery-item-copy">
@@ -272,7 +285,7 @@ export function App() {
       </section>
 
       <section className="contact" id="contact">
-        <img src={content.siteMedia.contactBackground || cosAsset("contact-lighthouse.png")} data-fallback-src={localAsset("contact-lighthouse.png")} onError={useLocalAssetFallback} alt="风暴海岸与远处灯塔的电影画面" />
+        <img src={content.siteMedia.contactBackground || localAsset("contact-lighthouse.webp")} data-fallback-src={localAsset("contact-lighthouse.webp")} onError={useLocalAssetFallback} alt="风暴海岸与远处灯塔的电影画面" loading="lazy" decoding="async" />
         <div className="contact-overlay" />
         <div className="contact-content page-shell">
           <BlurText as="p" text="CONTACT" delay={100} className="eyebrow" />
@@ -327,7 +340,7 @@ export function App() {
             >
               <X size={22} />
             </button>
-            <img src={activeAsset.url || cosAsset(activeAsset.fileName)} data-fallback-src={activeAsset.fileName ? localAsset(activeAsset.fileName) : ""} onError={useLocalAssetFallback} alt={activeAsset.alt} />
+            <img src={activeAsset.url || localAsset(activeAsset.fileName)} data-fallback-src={activeAsset.fileName ? localAsset(activeAsset.fileName) : ""} onError={useLocalAssetFallback} alt={activeAsset.alt} decoding="async" />
             <figcaption>
               <span>{activeAsset.id} / 06</span>
               <strong id="lightbox-title">{activeAsset.label}</strong>
@@ -340,7 +353,7 @@ export function App() {
           <button className="project-view-backdrop" type="button" onClick={() => setActiveCategory(null)} aria-label="关闭项目列表" />
           <section className="project-view-panel">
             <header><div><small>{activeCategory.label}</small><h2 id="project-view-title">{activeCategory.title}</h2></div><button type="button" onClick={() => setActiveCategory(null)} aria-label="关闭"><X size={22} /></button></header>
-            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => <article key={project.id} className="project-view-item"><img src={project.coverUrl} alt={`${project.title}封面`} /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{project.videoUrl ? <video controls preload="metadata" playsInline src={project.videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>)}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
+            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => <article key={project.id} className="project-view-item"><img src={project.coverUrl} alt={`${project.title}封面`} loading="lazy" decoding="async" /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{project.videoUrl ? <video controls preload="metadata" playsInline src={project.videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>)}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
           </section>
         </div>
       )}

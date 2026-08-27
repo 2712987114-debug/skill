@@ -55,6 +55,7 @@ export default function ParticleText({
     let textStartX = 0;
     let textEndX = 1;
     let currentMode = "gather";
+    let isVisible = false;
 
     const setCanvasSize = () => {
       const bounds = root.getBoundingClientRect();
@@ -165,6 +166,7 @@ export default function ParticleText({
     };
 
     const draw = (time) => {
+      if (!isVisible) return;
       context.clearRect(0, 0, renderWidth, renderHeight);
       const duration = currentMode === "scatter"
         ? Math.min(680, gatherDuration * 0.48)
@@ -244,7 +246,7 @@ export default function ParticleText({
         context.shadowBlur = 0;
       }
 
-      if (!reduceMotion.matches || pointer.active) {
+      if (isVisible && (!reduceMotion.matches || pointer.active)) {
         frameId = window.requestAnimationFrame(draw);
       }
     };
@@ -275,12 +277,18 @@ export default function ParticleText({
       window.cancelAnimationFrame(resizeFrame);
       resizeFrame = window.requestAnimationFrame(rebuild);
     });
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      window.cancelAnimationFrame(frameId);
+      if (isVisible) frameId = window.requestAnimationFrame(draw);
+    }, { rootMargin: "160px" });
 
     root.addEventListener("pointermove", handlePointerMove);
     root.addEventListener("pointerenter", handlePointerEnter);
     root.addEventListener("pointerleave", handlePointerLeave);
     reduceMotion.addEventListener("change", handleMotionPreference);
     resizeObserver.observe(root);
+    visibilityObserver.observe(root);
 
     document.fonts?.ready.then(rebuild);
 
@@ -288,6 +296,7 @@ export default function ParticleText({
       window.cancelAnimationFrame(frameId);
       window.cancelAnimationFrame(resizeFrame);
       resizeObserver.disconnect();
+      visibilityObserver.disconnect();
       root.removeEventListener("pointermove", handlePointerMove);
       root.removeEventListener("pointerenter", handlePointerEnter);
       root.removeEventListener("pointerleave", handlePointerLeave);

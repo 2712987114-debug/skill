@@ -1,9 +1,6 @@
-@import "@fontsource-variable/inter";
-@import "@fontsource-variable/noto-sans-sc";
-
 :root {
   color-scheme: dark;
-  font-family: "Inter Variable", "Noto Sans SC Variable", sans-serif;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, -apple-system, sans-serif;
   background: #050505;
   color: #f0f0f2;
   font-synthesis: none;
@@ -36,6 +33,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
 button { color: inherit; }
 img, video { display: block; width: 100%; }
+
+.about,
+.projects,
+.gallery,
+.workflow,
+.strengths,
+.contact {
+  content-visibility: auto;
+  contain-intrinsic-size: 900px;
+}
 
 ::selection { background: var(--accent); color: #050505; }
 
