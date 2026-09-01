@@ -1,0 +1,41 @@
+function sceneAsset(id, fileName, label, group) {
+  return {
+    id,
+    category: "scenes",
+    fileName: `scenes/${fileName}`,
+    label,
+    alt: `《洛神》${group}场景资产：${label}`,
+  };
+}
+
+export const luoshenSceneAssets = [
+  sceneAsset("luoshen-qingshi-01", "scene-qingshi-01.webp", "油灯桌面与洛神现身区域", "青石村周边"),
+  sceneAsset("luoshen-qingshi-02", "scene-qingshi-02.webp", "储物农具与妖物潜伏区域", "青石村周边"),
+  sceneAsset("luoshen-qingshi-03", "scene-qingshi-03.webp", "村庄广场", "青石村周边"),
+  sceneAsset("luoshen-qingshi-04", "scene-qingshi-04.webp", "门窗月光与妖物入口", "青石村周边"),
+  sceneAsset("luoshen-qingshi-05", "scene-qingshi-05.webp", "床铺与刘牧苏醒主场景", "青石村周边"),
+  sceneAsset("luoshen-qingshi-06", "scene-qingshi-06.webp", "青石村反打视角", "青石村周边"),
+  sceneAsset("luoshen-qingshi-07", "scene-qingshi-07.webp", "青石村俯视图", "青石村周边"),
+  sceneAsset("luoshen-qingshi-08", "scene-qingshi-08.webp", "荒山古庙 01", "青石村周边"),
+  sceneAsset("luoshen-qingshi-09", "scene-qingshi-09.webp", "荒山古庙 02", "青石村周边"),
+  sceneAsset("luoshen-qingshi-10", "scene-qingshi-10.webp", "荒山古庙 03", "青石村周边"),
+  sceneAsset("luoshen-qingshi-11", "scene-qingshi-11.webp", "青石村平视视角", "青石村周边"),
+  sceneAsset("luoshen-qingshi-12", "scene-qingshi-12.webp", "青石村村口 01", "青石村周边"),
+  sceneAsset("luoshen-qingshi-13", "scene-qingshi-13.webp", "青石村祠堂", "青石村周边"),
+  sceneAsset("luoshen-qingshi-14", "scene-qingshi-14.webp", "青石村村口 02", "青石村周边"),
+  sceneAsset("luoshen-qingshi-15", "scene-qingshi-15.webp", "青石村村口夜景", "青石村周边"),
+  sceneAsset("luoshen-qingshi-16", "scene-qingshi-16.webp", "青石村街道", "青石村周边"),
+  sceneAsset("luoshen-qingshi-17", "scene-qingshi-17.webp", "青石村外山头", "青石村周边"),
+  sceneAsset("luoshen-qingshi-18", "scene-qingshi-18.webp", "赵大伯茅屋", "青石村周边"),
+  sceneAsset("luoshen-qingzhou-01", "scene-qingzhou-01.webp", "青州城母版", "青州城"),
+  sceneAsset("luoshen-qingzhou-02", "scene-qingzhou-02.webp", "青州城后方平视", "青州城"),
+  sceneAsset("luoshen-qingzhou-03", "scene-qingzhou-03.webp", "青州城侧面全景", "青州城"),
+  sceneAsset("luoshen-qingzhou-04", "scene-qingzhou-04.webp", "青州城俯视图", "青州城"),
+  sceneAsset("luoshen-qingzhou-05", "scene-qingzhou-05.webp", "青州城街道 01", "青州城"),
+  sceneAsset("luoshen-qingzhou-06", "scene-qingzhou-06.webp", "青州城内景", "青州城"),
+  sceneAsset("luoshen-qingzhou-07", "scene-qingzhou-07.webp", "青州城全景", "青州城"),
+  sceneAsset("luoshen-qingzhou-08", "scene-qingzhou-08.webp", "青州城外景母版", "青州城"),
+  sceneAsset("luoshen-qingzhou-09", "scene-qingzhou-09.webp", "青州城街道 02", "青州城"),
+  sceneAsset("luoshen-qingzhou-10", "scene-qingzhou-10.webp", "石雕头像细节图", "青州城"),
+  sceneAsset("luoshen-qingzhou-11", "scene-qingzhou-11.webp", "青州城中景功能图", "青州城"),
+];
