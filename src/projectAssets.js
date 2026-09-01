@@ -26,4 +26,13 @@ export const bundledProjects = [
     coverFileName: "projects/biaoge-cover.webp",
     videoFileName: "videos/biaoge.mp4",
   },
+  {
+    id: "short-drama-dandao",
+    category: "shortDrama",
+    title: "丹道",
+    type: "短剧",
+    description: "短剧作品《丹道》",
+    coverFileName: "projects/dandao-cover.webp",
+    videoFileName: "videos/dandao.mp4",
+  },
 ];
