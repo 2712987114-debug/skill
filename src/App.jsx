@@ -41,6 +41,17 @@ const optimizedStaticAssets = {
   "portrait-editor-bw.png": "portrait-editor-bw.webp",
 };
 
+const BRAND_NAME = "Cui Mengyuan";
+
+function migrateLegacyProfile(profile = {}) {
+  return {
+    ...profile,
+    displayName: !profile.displayName || profile.displayName === "李万民" ? BRAND_NAME : profile.displayName,
+    aboutPrimary: (profile.aboutPrimary || "").replaceAll("李万民", BRAND_NAME),
+    footerCopyright: (profile.footerCopyright || "").replaceAll("李万民", BRAND_NAME),
+  };
+}
+
 function optimizeSavedAsset(asset) {
   if (asset.url || !optimizedStaticAssets[asset.fileName]) return asset;
   return { ...asset, fileName: optimizedStaticAssets[asset.fileName] };
@@ -53,7 +64,7 @@ export function App() {
   const [content, setContent] = useState({ galleryAssets, projects: [], siteMedia: {}, profile: {} });
 
   useEffect(() => {
-    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
+    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -137,7 +148,7 @@ export function App() {
             <ParticleText
               id="hero-title"
               className="hero-title-particles"
-              text={content.profile?.displayName || "李万民"}
+              text={content.profile?.displayName || BRAND_NAME}
               particleSize={2}
               density={4}
               color="#ffffff"
@@ -167,13 +178,13 @@ export function App() {
 
       <section className="about" id="about">
         <div className="about-image" data-reveal>
-          <img src={content.siteMedia.portrait || localAsset("portrait-editor-bw.webp")} data-fallback-src={localAsset("portrait-editor-bw.webp")} onError={useLocalAssetFallback} alt="李万民在剪辑工作室工作的黑白人物照" loading="lazy" decoding="async" />
+          <img src={content.siteMedia.portrait || localAsset("portrait-editor-bw.webp")} data-fallback-src={localAsset("portrait-editor-bw.webp")} onError={useLocalAssetFallback} alt="Cui Mengyuan 在剪辑工作室工作的黑白人物照" loading="lazy" decoding="async" />
         </div>
         <div className="about-copy">
           <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
           <BlurText as="h2" text={"用影像讲好故事，\n用 AI 拓展想象的边界。"} delay={120} />
           <BlurText
-            text={content.profile?.aboutPrimary || "我叫李万民，是一名专注内容叙事与视觉表达的 AI 短剧剪辑师。熟悉真人短剧的粗剪、精剪与节奏把控，也能独立完成 AI 漫剧从小说改写、剧本分镜、资产图建立、视频生成到剪辑成片的完整流程。"}
+            text={content.profile?.aboutPrimary || "我叫 Cui Mengyuan，是一名专注内容叙事与视觉表达的 AI 短剧剪辑师。熟悉真人短剧的粗剪、精剪与节奏把控，也能独立完成 AI 漫剧从小说改写、剧本分镜、资产图建立、视频生成到剪辑成片的完整流程。"}
             delay={32}
           />
           <BlurText
@@ -317,7 +328,7 @@ export function App() {
           </div>
         </div>
         <footer className="footer page-shell">
-          <BlurText as="span" text={content.profile?.footerCopyright || "© 2024—2026 李万民 · 保留所有权利"} delay={35} />
+          <BlurText as="span" text={content.profile?.footerCopyright || "© 2024—2026 Cui Mengyuan · 保留所有权利"} delay={35} />
           <BlurText as="span" text="AI EDITOR · AVAILABLE FOR WORK" delay={45} />
           <a href="#home" aria-label="返回顶部"><ArrowUp size={16} /> TOP</a>
         </footer>
@@ -361,3 +372,4 @@ export function App() {
     </main>
   );
 }
+
