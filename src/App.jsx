@@ -62,9 +62,16 @@ export function App() {
   const [activeAsset, setActiveAsset] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [content, setContent] = useState({ galleryAssets, projects: [], siteMedia: {}, profile: {} });
+  const [manifestReady, setManifestReady] = useState(false);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
 
   useEffect(() => {
-    loadManifest().then((saved) => { if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects })); }).catch(() => {});
+    loadManifest()
+      .then((saved) => {
+        if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects }));
+      })
+      .catch(() => {})
+      .finally(() => setManifestReady(true));
   }, []);
 
   useEffect(() => {
@@ -100,6 +107,14 @@ export function App() {
     };
   }, [activeAsset]);
 
+  const heroVideoSrc = manifestReady
+    ? content.siteMedia.heroVideo || localAsset("hero-editor-studio.mp4")
+    : "";
+
+  useEffect(() => {
+    setHeroVideoReady(false);
+  }, [heroVideoSrc]);
+
   const closeMenu = () => setMenuOpen(false);
 
   return (
@@ -129,16 +144,19 @@ export function App() {
 
       <section className="hero" id="home" aria-labelledby="hero-title">
         <video
-          className="hero-video"
+          className={`hero-video${heroVideoReady ? " is-ready" : ""}`}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          src={content.siteMedia.heroVideo || localAsset("hero-editor-studio.mp4")}
+          src={heroVideoSrc || undefined}
           data-fallback-src={localAsset("hero-editor-studio.mp4")}
-          onError={useLocalAssetFallback}
-          poster={content.siteMedia.heroPoster || localAsset("hero-editor-studio.webp")}
+          onCanPlay={() => setHeroVideoReady(true)}
+          onError={(event) => {
+            setHeroVideoReady(false);
+            useLocalAssetFallback(event);
+          }}
           aria-hidden="true"
         />
         <div className="hero-shade" />
