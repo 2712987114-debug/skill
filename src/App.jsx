@@ -368,7 +368,7 @@ export function App() {
         </div>
         <div className="project-categories page-shell">
           {[
-            ["01", "短剧", "SHORT DRAMA", "shortDrama"],
+            ["01", "短剧", "SHORT DRAMA", "shortDrama", "projects/short-drama-category-cover.webp"],
             ["02", "《被魔尊附体后我成反派了》", "AI DRAMA SERIES", "mozunFanpai", "projects/mozun-ep1-cover.webp"],
             ["03", "其他板块", "OTHER WORKS", "otherWorks"],
           ].map(([number, title, label, category, coverFileName]) => {
