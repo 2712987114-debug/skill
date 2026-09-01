@@ -333,7 +333,7 @@ export function App() {
 
       <section className="about" id="about">
         <div className="about-image" data-reveal>
-          <img src={content.siteMedia.portrait || localAsset("about-cinema-editorial.webp")} data-fallback-src={localAsset("about-cinema-editorial.webp")} onError={useLocalAssetFallback} alt="创作者站在黑色放映空间中凝视投影光束" loading="lazy" decoding="async" />
+          <img src={localAsset("about-cinema-portrait.webp")} alt="身着黑色西装的创作者站在放映空间光束前" loading="lazy" decoding="async" />
         </div>
         <div className="about-copy">
           <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
