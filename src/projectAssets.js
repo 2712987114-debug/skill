@@ -63,6 +63,15 @@ export const bundledProjects = [
     videoFileName: "videos/mangxin.mp4",
   },
   {
+    id: "short-drama-xiaohunv",
+    category: "shortDrama",
+    title: "小狐女",
+    type: "短剧",
+    description: "短剧作品《小狐女》",
+    coverFileName: "projects/xiaohunv-cover.webp",
+    videoFileName: "videos/xiaohunv.mp4",
+  },
+  {
     id: "mozun-fanpai-episode-1",
     category: "mozunFanpai",
     title: "第一集",
