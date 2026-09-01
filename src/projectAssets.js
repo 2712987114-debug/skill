@@ -72,6 +72,15 @@ export const bundledProjects = [
     videoFileName: "videos/xiaohunv.mp4",
   },
   {
+    id: "short-drama-yikedan",
+    category: "shortDrama",
+    title: "一颗蛋",
+    type: "短剧",
+    description: "短剧作品《一颗蛋》",
+    coverFileName: "projects/yikedan-cover.webp",
+    videoFileName: "videos/yikedan.mp4",
+  },
+  {
     id: "mozun-fanpai-episode-1",
     category: "mozunFanpai",
     title: "第一集",
