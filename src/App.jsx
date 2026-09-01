@@ -49,6 +49,7 @@ const optimizedStaticAssets = {
 
 const BRAND_NAME = "Cui Mengyuan";
 const GALLERY_PAGE_SIZE = 5;
+const PROJECT_PAGE_SIZE = 6;
 
 function migrateLegacyProfile(profile = {}) {
   return {
@@ -74,6 +75,52 @@ function mergeProjects(savedProjects) {
   const bundledIds = new Set(bundledProjects.map((project) => project.id));
   const saved = Array.isArray(savedProjects) ? savedProjects : [];
   return [...bundledProjects, ...saved.filter((project) => !bundledIds.has(project.id))];
+}
+
+function projectCover(project) {
+  return project.coverUrl || (project.coverFileName ? localAsset(project.coverFileName) : "");
+}
+
+function projectVideo(project) {
+  return project.videoUrl || (project.videoFileName ? localAsset(project.videoFileName) : "");
+}
+
+function ProjectGallery({ projects, onOpen }) {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(projects.length / PROJECT_PAGE_SIZE));
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, pageCount - 1));
+  }, [pageCount]);
+
+  const visibleProjects = projects.slice(page * PROJECT_PAGE_SIZE, (page + 1) * PROJECT_PAGE_SIZE);
+
+  return (
+    <>
+      <div className="project-view-grid">
+        {visibleProjects.map((project) => (
+          <button className="project-card" type="button" key={project.id} onClick={() => onOpen(project)} aria-label={`播放${project.title}`}>
+            <span className="project-card-media">
+              <img src={projectCover(project)} alt={`${project.title}封面`} loading="lazy" decoding="async" />
+              <span className="project-card-play"><Play size={18} weight="fill" /></span>
+              <small>{project.type}</small>
+            </span>
+            <span className="project-card-copy">
+              <strong>{project.title}</strong>
+              <span>{project.description}</span>
+            </span>
+          </button>
+        ))}
+      </div>
+      {pageCount > 1 && (
+        <nav className="gallery-pagination project-pagination" aria-label="短剧作品翻页">
+          <button className="gallery-nav-button" type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0}><ArrowLeft size={17} />上一页</button>
+          <div className="gallery-page-status" aria-live="polite"><strong>{String(page + 1).padStart(2, "0")}</strong><span>/ {String(pageCount).padStart(2, "0")}</span></div>
+          <button className="gallery-nav-button" type="button" onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))} disabled={page === pageCount - 1}>下一页<ArrowRight size={17} /></button>
+        </nav>
+      )}
+    </>
+  );
 }
 
 function GalleryGroup({ title, label, assets, onSelect }) {
@@ -149,6 +196,7 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeAsset, setActiveAsset] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [activeProject, setActiveProject] = useState(null);
   const [content, setContent] = useState({ galleryAssets, projects: bundledProjects, siteMedia: {}, profile: {} });
   const [manifestReady, setManifestReady] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
@@ -179,6 +227,7 @@ export function App() {
       if (event.key === "Escape") {
         setActiveAsset(null);
         setActiveCategory(null);
+        setActiveProject(null);
         setMenuOpen(false);
       }
     };
@@ -187,13 +236,13 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!activeAsset && !activeCategory) return undefined;
+    if (!activeAsset && !activeCategory && !activeProject) return undefined;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [activeAsset]);
+  }, [activeAsset, activeCategory, activeProject]);
 
   const heroVideoSrc = manifestReady
     ? content.siteMedia.heroVideo || localAsset("hero-editor-studio.mp4")
@@ -451,11 +500,16 @@ export function App() {
           <button className="project-view-backdrop" type="button" onClick={() => setActiveCategory(null)} aria-label="关闭项目列表" />
           <section className="project-view-panel">
             <header><div><small>{activeCategory.label}</small><h2 id="project-view-title">{activeCategory.title}</h2></div><button type="button" onClick={() => setActiveCategory(null)} aria-label="关闭"><X size={22} /></button></header>
-            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => {
-              const coverUrl = project.coverUrl || localAsset(project.coverFileName);
-              const videoUrl = project.videoUrl || (project.videoFileName ? localAsset(project.videoFileName) : "");
-              return <article key={project.id} className="project-view-item"><img src={coverUrl} alt={`${project.title}封面`} loading="lazy" decoding="async" /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{videoUrl ? <video controls preload="metadata" playsInline poster={coverUrl} src={videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>;
-            })}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
+            {activeCategory.projects.length ? <ProjectGallery projects={activeCategory.projects} onOpen={setActiveProject} /> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
+          </section>
+        </div>
+      )}
+      {activeProject && (
+        <div className="project-player" role="dialog" aria-modal="true" aria-labelledby="project-player-title">
+          <button className="project-player-backdrop" type="button" onClick={() => setActiveProject(null)} aria-label="关闭视频" />
+          <section className="project-player-panel">
+            <header><div><small>{activeProject.type}</small><h2 id="project-player-title">{activeProject.title}</h2></div><button type="button" onClick={() => setActiveProject(null)} aria-label="关闭"><X size={22} /></button></header>
+            {projectVideo(activeProject) ? <video controls preload="none" playsInline poster={projectCover(activeProject)} src={projectVideo(activeProject)} aria-label={`播放${activeProject.title}`} /> : <p className="project-view-empty">暂未上传视频</p>}
           </section>
         </div>
       )}
