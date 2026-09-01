@@ -44,4 +44,13 @@ export const bundledProjects = [
     coverFileName: "projects/ludishenxian-cover.webp",
     videoFileName: "videos/ludishenxian.mp4",
   },
+  {
+    id: "short-drama-jiehunfusi",
+    category: "shortDrama",
+    title: "他要结婚我要赴死",
+    type: "短剧",
+    description: "短剧作品《他要结婚我要赴死》",
+    coverFileName: "projects/jiehunfusi-cover.webp",
+    videoFileName: "videos/jiehunfusi.mp4",
+  },
 ];
