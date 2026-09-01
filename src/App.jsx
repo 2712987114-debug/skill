@@ -84,8 +84,8 @@ function GalleryGroup({ title, label, assets, onSelect }) {
         <h3>{title}</h3>
         <span>{assets.length.toString().padStart(2, "0")}</span>
       </div>
-      <div className="gallery-grid" key={page}>
-        {visibleAssets.map((asset, index) => {
+      <div className="gallery-grid" key={page} data-gallery-version="paged-v2">
+        {visibleAssets.slice(0, GALLERY_PAGE_SIZE).map((asset, index) => {
           const absoluteIndex = page * GALLERY_PAGE_SIZE + index;
           return (
             <button
@@ -108,14 +108,26 @@ function GalleryGroup({ title, label, assets, onSelect }) {
       </div>
       {pageCount > 1 && (
         <nav className="gallery-pagination" aria-label={`${title}翻页`}>
-          <button type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0} aria-label="上一页">
+          <button className="gallery-nav-button" type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0} aria-label="上一页">
             <ArrowLeft size={17} /> 上一页
           </button>
+          <div className="gallery-page-dots" aria-label="选择页码">
+            {Array.from({ length: pageCount }, (_, index) => (
+              <button
+                className={index === page ? "gallery-page-dot is-active" : "gallery-page-dot"}
+                type="button"
+                key={index}
+                onClick={() => setPage(index)}
+                aria-label={`第 ${index + 1} 页`}
+                aria-current={index === page ? "page" : undefined}
+              />
+            ))}
+          </div>
           <div className="gallery-page-status" aria-live="polite">
             <strong>{String(page + 1).padStart(2, "0")}</strong>
             <span>/ {String(pageCount).padStart(2, "0")}</span>
           </div>
-          <button type="button" onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))} disabled={page === pageCount - 1} aria-label="下一页">
+          <button className="gallery-nav-button" type="button" onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))} disabled={page === pageCount - 1} aria-label="下一页">
             下一页 <ArrowRight size={17} />
           </button>
         </nav>
