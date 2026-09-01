@@ -333,7 +333,7 @@ export function App() {
 
       <section className="about" id="about">
         <div className="about-image" data-reveal>
-          <video src={localAsset("videos/about-dance.mp4")} autoPlay muted loop playsInline preload="auto" aria-label="个人简介舞蹈作品视频" />
+          <img src={content.siteMedia.portrait || localAsset("about-cinema-editorial.webp")} data-fallback-src={localAsset("about-cinema-editorial.webp")} onError={useLocalAssetFallback} alt="创作者站在黑色放映空间中凝视投影光束" loading="lazy" decoding="async" />
         </div>
         <div className="about-copy">
           <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
