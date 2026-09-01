@@ -17,4 +17,13 @@ export const bundledProjects = [
     coverFileName: "projects/gaocuolianyin-cover.webp",
     videoFileName: "videos/gaocuolianyin.mp4",
   },
+  {
+    id: "short-drama-biaoge",
+    category: "shortDrama",
+    title: "表哥",
+    type: "短剧",
+    description: "短剧作品《表哥》",
+    coverFileName: "projects/biaoge-cover.webp",
+    videoFileName: "videos/biaoge.mp4",
+  },
 ];
