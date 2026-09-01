@@ -214,7 +214,9 @@ img, video { display: block; width: 100%; }
 }
 
 .about-image { min-height: 760px; overflow: hidden; }
-.about-image img { height: 100%; object-fit: cover; object-position: 50% 42%; filter: grayscale(1) contrast(1.06); }
+.about-image img,
+.about-image video { height: 100%; object-fit: cover; object-position: 50% 42%; filter: grayscale(1) contrast(1.06); }
+.about-image video { background: #050505; }
 .about-copy { align-self: center; padding: 90px clamp(56px, 7vw, 140px); }
 .about-copy h2 {
   margin: 0 0 42px;
