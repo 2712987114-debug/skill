@@ -54,6 +54,15 @@ export const bundledProjects = [
     videoFileName: "videos/jiehunfusi.mp4",
   },
   {
+    id: "short-drama-mangxin",
+    category: "shortDrama",
+    title: "盲信",
+    type: "短剧",
+    description: "短剧作品《盲信》",
+    coverFileName: "projects/mangxin-cover.webp",
+    videoFileName: "videos/mangxin.mp4",
+  },
+  {
     id: "mozun-fanpai-episode-1",
     category: "mozunFanpai",
     title: "第一集",
