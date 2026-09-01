@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   ArrowUp,
   ArrowUpRight,
@@ -44,6 +45,7 @@ const optimizedStaticAssets = {
 };
 
 const BRAND_NAME = "Cui Mengyuan";
+const GALLERY_PAGE_SIZE = 5;
 
 function migrateLegacyProfile(profile = {}) {
   return {
@@ -63,6 +65,63 @@ function mergeGalleryAssets(savedAssets) {
   const bundledIds = new Set(galleryAssets.map((asset) => asset.id));
   const saved = Array.isArray(savedAssets) ? savedAssets.map(optimizeSavedAsset) : [];
   return [...galleryAssets, ...saved.filter((asset) => !bundledIds.has(asset.id))];
+}
+
+function GalleryGroup({ title, label, assets, onSelect }) {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(assets.length / GALLERY_PAGE_SIZE));
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, pageCount - 1));
+  }, [pageCount]);
+
+  const visibleAssets = assets.slice(page * GALLERY_PAGE_SIZE, (page + 1) * GALLERY_PAGE_SIZE);
+
+  return (
+    <section className="gallery-group" data-reveal>
+      <div className="gallery-group-title">
+        <small>{label}</small>
+        <h3>{title}</h3>
+        <span>{assets.length.toString().padStart(2, "0")}</span>
+      </div>
+      <div className="gallery-grid" key={page}>
+        {visibleAssets.map((asset, index) => {
+          const absoluteIndex = page * GALLERY_PAGE_SIZE + index;
+          return (
+            <button
+              className={`gallery-item gallery-item--${index + 1}`}
+              type="button"
+              key={asset.id}
+              onClick={() => onSelect(asset)}
+              aria-label={`查看${asset.label}`}
+            >
+              <img src={asset.url || localAsset(asset.fileName)} data-fallback-src={asset.fileName ? localAsset(asset.fileName) : ""} onError={useLocalAssetFallback} alt={asset.alt} loading="lazy" decoding="async" />
+              <span className="gallery-item-shade" />
+              <span className="gallery-item-index">{String(absoluteIndex + 1).padStart(2, "0")} / {String(assets.length).padStart(2, "0")}</span>
+              <span className="gallery-item-copy">
+                <small>AI GENERATED ASSET</small>
+                <strong>{asset.label}</strong>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {pageCount > 1 && (
+        <nav className="gallery-pagination" aria-label={`${title}翻页`}>
+          <button type="button" onClick={() => setPage((current) => Math.max(0, current - 1))} disabled={page === 0} aria-label="上一页">
+            <ArrowLeft size={17} /> 上一页
+          </button>
+          <div className="gallery-page-status" aria-live="polite">
+            <strong>{String(page + 1).padStart(2, "0")}</strong>
+            <span>/ {String(pageCount).padStart(2, "0")}</span>
+          </div>
+          <button type="button" onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))} disabled={page === pageCount - 1} aria-label="下一页">
+            下一页 <ArrowRight size={17} />
+          </button>
+        </nav>
+      )}
+    </section>
+  );
 }
 
 export function App() {
@@ -264,26 +323,7 @@ export function App() {
         <div className="gallery-groups page-shell">
           {[ ["characters", "人物资产图", "CHARACTER ASSETS"], ["scenes", "场景资产图", "SCENE ASSETS"] ].map(([category, title, label]) => {
             const assets = content.galleryAssets.filter((asset) => (asset.category || "characters") === category);
-            return <section className="gallery-group" key={category}><div className="gallery-group-title"><small>{label}</small><h3>{title}</h3><span>{assets.length.toString().padStart(2, "0")}</span></div><div className="gallery-grid">
-          {assets.map((asset, index) => (
-            <button
-              className={`gallery-item gallery-item--${index + 1}`}
-              type="button"
-              key={asset.id}
-              onClick={() => setActiveAsset(asset)}
-              aria-label={`查看${asset.label}`}
-              data-reveal
-            >
-              <img src={asset.url || localAsset(asset.fileName)} data-fallback-src={asset.fileName ? localAsset(asset.fileName) : ""} onError={useLocalAssetFallback} alt={asset.alt} loading="lazy" decoding="async" />
-              <span className="gallery-item-shade" />
-              <span className="gallery-item-index">{String(index + 1).padStart(2, "0")} / {String(assets.length).padStart(2, "0")}</span>
-              <span className="gallery-item-copy">
-                <BlurText as="small" text="AI GENERATED ASSET" delay={55} />
-                <BlurText as="strong" text={asset.label} delay={85} />
-              </span>
-            </button>
-          ))}
-            </div></section>;
+            return <GalleryGroup key={category} title={title} label={label} assets={assets} onSelect={setActiveAsset} />;
           })}
         </div>
       </section>
