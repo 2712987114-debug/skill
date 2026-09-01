@@ -2,7 +2,7 @@
 
 每次推送 `main` 分支，GitHub Actions 会自动构建并发布网站到 GitHub Pages。首次使用时，请在仓库 **Settings → Pages → Build and deployment** 中将 Source 设为 **GitHub Actions**。
 
-网站地址为：`https://2712987114-debug.github.io/Cuimengyuan/`
+网站地址为：`https://2712987114-debug.github.io/skill/`
 
 ## 上传视频
 
