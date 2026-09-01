@@ -35,4 +35,13 @@ export const bundledProjects = [
     coverFileName: "projects/dandao-cover.webp",
     videoFileName: "videos/dandao.mp4",
   },
+  {
+    id: "short-drama-ludishenxian",
+    category: "shortDrama",
+    title: "陆地神仙",
+    type: "短剧",
+    description: "短剧作品《陆地神仙》",
+    coverFileName: "projects/ludishenxian-cover.webp",
+    videoFileName: "videos/ludishenxian.mp4",
+  },
 ];
