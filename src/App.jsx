@@ -13,6 +13,7 @@ import BlurText from "./components/BlurText";
 import ParticleText from "./components/ParticleText";
 import { loadManifest, localAsset, useLocalAssetFallback } from "./cosAssets";
 import AdminPanel from "./AdminPanel";
+import { luoshenCharacterAssets } from "./characterAssets";
 
 const strengths = [
   ["01", "镜头语言", "善于构图与调度，用镜头传递情绪与信息，强化故事沉浸感。"],
@@ -24,6 +25,7 @@ const strengths = [
 const workflow = ["小说改写", "剧本分镜", "AI 资产图", "视频生成", "剪辑成片"];
 
 const galleryAssets = [
+  ...luoshenCharacterAssets,
   { id: "01", category: "characters", fileName: "project-jiuyou.webp", label: "古风角色概念", alt: "暗色古风角色与遗迹场景的 AI 概念图" },
   { id: "02", category: "characters", fileName: "project-mercenary.webp", label: "末日场景资产", alt: "黑甲角色俯瞰废墟城池的 AI 场景图" },
   { id: "03", category: "characters", fileName: "project-boundaries.webp", label: "人物叙事画面", alt: "室内暖光人物对话的 AI 叙事画面" },
@@ -57,6 +59,12 @@ function optimizeSavedAsset(asset) {
   return { ...asset, fileName: optimizedStaticAssets[asset.fileName] };
 }
 
+function mergeGalleryAssets(savedAssets) {
+  const bundledIds = new Set(galleryAssets.map((asset) => asset.id));
+  const saved = Array.isArray(savedAssets) ? savedAssets.map(optimizeSavedAsset) : [];
+  return [...galleryAssets, ...saved.filter((asset) => !bundledIds.has(asset.id))];
+}
+
 export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeAsset, setActiveAsset] = useState(null);
@@ -68,7 +76,7 @@ export function App() {
   useEffect(() => {
     loadManifest()
       .then((saved) => {
-        if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: Array.isArray(saved.galleryAssets) ? saved.galleryAssets.map(optimizeSavedAsset) : current.galleryAssets, projects: Array.isArray(saved.projects) ? saved.projects : current.projects }));
+        if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: mergeGalleryAssets(saved.galleryAssets), projects: Array.isArray(saved.projects) ? saved.projects : current.projects }));
       })
       .catch(() => {})
       .finally(() => setManifestReady(true));
@@ -390,4 +398,3 @@ export function App() {
     </main>
   );
 }
-
