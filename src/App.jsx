@@ -178,7 +178,7 @@ export function App() {
 
       <section className="about" id="about">
         <div className="about-image" data-reveal>
-          <img src={content.siteMedia.portrait || localAsset("portrait-editor-bw.webp")} data-fallback-src={localAsset("portrait-editor-bw.webp")} onError={useLocalAssetFallback} alt="Cui Mengyuan 在剪辑工作室工作的黑白人物照" loading="lazy" decoding="async" />
+          <img src={content.siteMedia.portrait || localAsset("about-cinema-editorial.webp")} data-fallback-src={localAsset("about-cinema-editorial.webp")} onError={useLocalAssetFallback} alt="创作者站在黑色放映空间中凝视投影光束" loading="lazy" decoding="async" />
         </div>
         <div className="about-copy">
           <BlurText as="p" text="ABOUT" delay={100} className="eyebrow" />
