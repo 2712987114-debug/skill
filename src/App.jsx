@@ -16,6 +16,7 @@ import { loadManifest, localAsset, useLocalAssetFallback } from "./cosAssets";
 import AdminPanel from "./AdminPanel";
 import { luoshenCharacterAssets } from "./characterAssets";
 import { luoshenSceneAssets } from "./sceneAssets";
+import { bundledProjects } from "./projectAssets";
 
 const strengths = [
   ["01", "镜头语言", "善于构图与调度，用镜头传递情绪与信息，强化故事沉浸感。"],
@@ -67,6 +68,12 @@ function mergeGalleryAssets(savedAssets) {
   const bundledIds = new Set(galleryAssets.map((asset) => asset.id));
   const saved = Array.isArray(savedAssets) ? savedAssets.map(optimizeSavedAsset) : [];
   return [...galleryAssets, ...saved.filter((asset) => !bundledIds.has(asset.id))];
+}
+
+function mergeProjects(savedProjects) {
+  const bundledIds = new Set(bundledProjects.map((project) => project.id));
+  const saved = Array.isArray(savedProjects) ? savedProjects : [];
+  return [...bundledProjects, ...saved.filter((project) => !bundledIds.has(project.id))];
 }
 
 function GalleryGroup({ title, label, assets, onSelect }) {
@@ -142,14 +149,14 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeAsset, setActiveAsset] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
-  const [content, setContent] = useState({ galleryAssets, projects: [], siteMedia: {}, profile: {} });
+  const [content, setContent] = useState({ galleryAssets, projects: bundledProjects, siteMedia: {}, profile: {} });
   const [manifestReady, setManifestReady] = useState(false);
   const [heroVideoReady, setHeroVideoReady] = useState(false);
 
   useEffect(() => {
     loadManifest()
       .then((saved) => {
-        if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: mergeGalleryAssets(saved.galleryAssets), projects: Array.isArray(saved.projects) ? saved.projects : current.projects }));
+        if (saved) setContent((current) => ({ ...current, ...saved, profile: migrateLegacyProfile(saved.profile), galleryAssets: mergeGalleryAssets(saved.galleryAssets), projects: mergeProjects(saved.projects) }));
       })
       .catch(() => {})
       .finally(() => setManifestReady(true));
@@ -444,7 +451,11 @@ export function App() {
           <button className="project-view-backdrop" type="button" onClick={() => setActiveCategory(null)} aria-label="关闭项目列表" />
           <section className="project-view-panel">
             <header><div><small>{activeCategory.label}</small><h2 id="project-view-title">{activeCategory.title}</h2></div><button type="button" onClick={() => setActiveCategory(null)} aria-label="关闭"><X size={22} /></button></header>
-            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => <article key={project.id} className="project-view-item"><img src={project.coverUrl} alt={`${project.title}封面`} loading="lazy" decoding="async" /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{project.videoUrl ? <video controls preload="metadata" playsInline src={project.videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>)}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
+            {activeCategory.projects.length ? <div className="project-view-grid">{activeCategory.projects.map((project) => {
+              const coverUrl = project.coverUrl || localAsset(project.coverFileName);
+              const videoUrl = project.videoUrl || (project.videoFileName ? localAsset(project.videoFileName) : "");
+              return <article key={project.id} className="project-view-item"><img src={coverUrl} alt={`${project.title}封面`} loading="lazy" decoding="async" /><div><small>{project.type}</small><h3>{project.title}</h3><p>{project.description}</p>{videoUrl ? <video controls preload="metadata" playsInline poster={coverUrl} src={videoUrl} aria-label={`播放${project.title}`} /> : <span className="project-view-empty">暂未上传视频</span>}</div></article>;
+            })}</div> : <p className="project-view-empty">这里还没有项目，请通过右下角内容管理添加。</p>}
           </section>
         </div>
       )}
